@@ -1,0 +1,19 @@
+--- a/include/exiv2/rwlock.hpp
++++ b/include/exiv2/rwlock.hpp
+@@ -22,14 +22,14 @@
+ #ifndef RW_LOCK_HPP
+ #define RW_LOCK_HPP
+ 
+-#ifdef _MSC_VER
++#ifdef WIN32
+ #include <windows.h>
+ #else
+ #include <pthread.h>
+ #endif
+ 
+ namespace Exiv2 {
+-#ifdef _MSC_VER
++#ifdef WIN32
+ /*
+ Visual Studio 2013 and later use SRWLOCK, however don't use Vista/7+ features
+ when targeting XP.

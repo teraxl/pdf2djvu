@@ -339,21 +339,25 @@ src/expat/install-stamp: src/expat/build-stamp
 
 src/exiv2/source-stamp:
 	mkdir -p $(dir $@)
-	tools/wget http://www.exiv2.org/exiv2-0.25.tar.gz c80bfc778a15fdb06f71265db2c3d49d8493c382e516cb99b8c9f9cbde36efa4
-	$(untar) dcache/exiv2-0.25.tar.gz -C $(dir $@)
+	tools/wget https://github.com/Exiv2/exiv2/archive/v0.26.tar.gz -n exiv2-0.26.tar.gz 51cffa8d19d67e1da6c1d0f570a75b8f6c814113367318c2c0407691888c5f01
+	$(untar) dcache/exiv2-0.26.tar.gz -C $(dir $@)
 	cd $(dir $@) && QUILT_PATCHES=../../patches/exiv2 quilt push -a
 	touch $(@)
 
-src/exiv2/config.status: src/exiv2/source-stamp
-src/exiv2/config.status: src/expat/install-stamp
+src/exiv2/Makefile: src/exiv2/source-stamp
+src/exiv2/Makefile: src/expat/install-stamp
 	cd $(dir $@) && \
-		./configure --host=$(host) --prefix=$(usr) \
-		--disable-static \
-		--without-zlib \
-		--disable-lensdata \
-		--disable-nls
+		cmake $(cmake_options) \
+		-DEXIV2_ENABLE_LIBXMP=OFF \
+		-DEXIV2_ENABLE_PNG=OFF \
+		-DEXIV2_ENABLE_LENSDATA=OFF \
+		-DEXIV2_ENABLE_NLS=OFF \
+		-DEXIV2_ENABLE_BUILD_SAMPLES=OFF \
+		.
+	find $(dir $@) -name build.make -print0 \
+	| xargs -0 sed -i -e 's, \(/[^ ]\+/\($(CC)\|$(CXX)\)\) , $(CURDIR)/tools/enforce-relative-paths \1 ,'
 
-src/exiv2/build-stamp: src/exiv2/config.status
+src/exiv2/build-stamp: src/exiv2/Makefile
 	$(MAKE) -C $(dir $@)
 	touch $(@)
 
